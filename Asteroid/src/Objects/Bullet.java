@@ -8,6 +8,10 @@ public interface Bullet {
 
 	public void setY(int newY);
 
+	public int getX();
+
+	public int getY();
+
 	public void render(Graphics2D g);
 
 	public void update();
@@ -19,5 +23,7 @@ public interface Bullet {
 	public void setDx(double cos);
 
 	public void setDy(double sin);
+
+	public void setBulletAngle(double angle);
 
 }

@@ -1,40 +1,73 @@
 package Objects;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import Display.Panel;
 
 public class Player {
 
-	int x, y, gunX, gunY;
+	private int x, y;
+	private BufferedImage shipImg;
+	private int cannonX, cannonY;
 	private double angle;
-	private final int width = 30, height = 30, gunWidth = 5, gunHeight = 25,
-			rotateAngle = 2;
-	private int speed = 1;
-	private int dx = speed, dy = speed;
+	private final int speed = 2, width, height;
+	// Ship Dimensions Width: 62, Height :113. Note the ship is being rotated!!!
+
 	// Move flags
-	private boolean forward, left, right;
+	private boolean up, down;
 
 	// Fire short burst of 10 bullets?
 	private SimpleBullet[] bullets;
 
 	public Player() {
 		// TODO Auto-generated constructor stub
-		x = Panel.WIDTH / 2;
-		y = Panel.HEIGHT / 2;
-		angle = (Math.PI / 8);
-		gunX = x + (width / 2) - gunWidth;
-		gunY = y + (height / 2);
 
-		forward = false;
-		left = false;
-		right = false;
+		shipImg = null;
+
+		try {
+			shipImg = ImageIO
+					.read(new File(
+							"E:\\Program Files\\Computer Science\\Asteroid\\Asteroid\\src\\ship.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("There was an error opening the ship image...");
+			e.printStackTrace();
+			System.exit(0);
+		}
+
+		width = 31;
+		height = 57;
+
+		x = width - 15;
+		y = Panel.HEIGHT / 2;
+
+		angle = Math.toRadians(90);
+
+		up = false;
+		down = false;
 
 		bullets = new SimpleBullet[10];
 
 		// Initialize bullets
 		initBullets();
 
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
 	}
 
 	private void initBullets() {
@@ -53,35 +86,64 @@ public class Player {
 	}
 
 	public void draw(Graphics2D g) {
+
+		// Note: Probably using transform incorrectly, read docs carefully!!!!!
+		AffineTransform transform = g.getTransform();
+
+		cannonX = x + width / 2;
+		cannonY = y + 4;
+
+		// Rotate the ship around the center
 		g.rotate(angle, x + (width / 2), y + (height / 2));
 
-		// Player
-		g.setColor(Color.white);
-		g.fill3DRect(x, y, width, height, true);
+		// Draw Ship
+		g.drawImage(shipImg, x, y, width, height, null);
 
-		// Player gun, centered on the square
-		g.setColor(Color.black);
-		g.fillRect(gunX, gunY, gunWidth, gunHeight);
+		// Draw bounds of the ship
+		g.setColor(Color.red);
+		g.drawRect(getX(), getY(), getWidth(), getHeight());
 
-		g.rotate(-angle, x + (width / 2), y + (height / 2));
+		g.setTransform(transform);
 
-		// if visible
+		// Draw the bullets
 		renderBullets(g);
 
-		/*
-		 * //offsetAngle int offsetAngle = 98; g.setColor(Color.red);
-		 * g.fillRect( (int) (gunX + (Math.cos(angle +
-		 * Math.toRadians(offsetAngle)) * gunHeight)), (int) (gunY +
-		 * (Math.sin(angle + Math.toRadians(offsetAngle)) * gunHeight)), 3, 3);
-		 */
+		bulletCount(g);
 
 	}
 
-	public void update() {
+	private void bulletCount(Graphics2D g2d) {
 
-		if (Math.toDegrees(angle) >= 360 || Math.toDegrees(angle) <= -360) {
-			angle = 0;
+		Font cFont = g2d.getFont();
+		Font newFont = cFont.deriveFont(cFont.getSize() * 2.0f);
+
+		g2d.setFont(newFont);
+
+		g2d.setColor(Color.white);
+
+		String bulletCountString = "Clip: " + availableBullets() + "/"
+				+ bullets.length;
+
+		g2d.drawString(bulletCountString, Panel.WIDTH - 200, 20);
+
+	}
+
+	private int availableBullets() {
+		// Total available bullets
+		int total = 0;
+
+		for (int index = 0; index < bullets.length; index++) {
+			// If the bullet is available (not visible) to be used add to the
+			// total
+			if (!bullets[index].getVisibility()) {
+				total += 1;
+			}
 		}
+
+		return total;
+	}
+
+	public void update() {
 
 		move();
 		updateBullets();
@@ -89,29 +151,20 @@ public class Player {
 	}
 
 	private void move() {
-		//System.out.println("Degrees: " + Math.toDegrees(angle));
-		System.out.println("Sin: " +Math.ceil(Math.sin(angle)));
-		
-		if (forward) {
-			
-			y += Math.sin(angle);
-			gunY += Math.sin(angle);
-			x += Math.cos(angle);
-			gunX += Math.cos(angle);
+		if (y <= 0) {
+			y = 1;
+		} else if (y >= Panel.HEIGHT - height) {
+			y = Panel.HEIGHT - height - 1;
+		} else {
+			if (up) {
+				y -= speed;
+			}
+			if (down) {
+				y += speed;
 
+			}
 		}
-		if (left) {
-			angle -= Math.toRadians(rotateAngle);
-
-		}
-		if (right) {
-			angle += Math.toRadians(rotateAngle);
-
-		}
-
 	}
-
-	int offsetAngle = 98;
 
 	public void checkAvailableBullets() {
 
@@ -120,16 +173,11 @@ public class Player {
 			// If this bullet is available use it and fire it
 			if (!bullets[index].getVisibility()) {
 
-				int bulletX = (int) (gunX + (Math.cos(angle
-						+ Math.toRadians(offsetAngle)) * gunHeight));
-				int bulletY = (int) (gunY + (Math.sin(angle
-						+ Math.toRadians(offsetAngle)) * gunHeight));
-
-				bullets[index].setX(bulletX);
-				bullets[index].setY(bulletY);
-				double bulletAngle = (angle);
-				bullets[index].setDx(Math.cos(bulletAngle));
-				bullets[index].setDy(Math.sin(bulletAngle));
+				bullets[index].setX(cannonX + 30);
+				bullets[index].setY(cannonY + 22);
+				bullets[index].setDx(1);
+				bullets[index].setDy(0);
+				bullets[index].setBulletAngle(angle);
 				bullets[index].setVisibility(true);
 
 				return;
@@ -145,22 +193,32 @@ public class Player {
 
 	}
 
-	public void moveForward(boolean move) {
+	public void moveUp(boolean move) {
 		// TODO Auto-generated method stub
-
-		forward = move;
+		up = move;
 
 	}
 
-	public void moveRight(boolean move) {
+	public void moveDown(boolean move) {
 		// TODO Auto-generated method stub
-		left = move;
+		down = move;
 
 	}
 
-	public void moveLeft(boolean move) {
+	public Bullet[] getBullets() {
 		// TODO Auto-generated method stub
-		right = move;
 
+		return bullets;
+
+	}
+
+	public int getWidth() {
+		// TODO Auto-generated method stub
+		return width;
+	}
+
+	public int getHeight() {
+		// TODO Auto-generated method stub
+		return height;
 	}
 }

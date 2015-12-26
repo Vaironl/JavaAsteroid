@@ -2,12 +2,14 @@ package Objects;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 
 import Display.Panel;
 
 public class SimpleBullet implements Bullet {
 
-	private int x, y, radius, speed;
+	private int x, y, radius;
+	private double bulletAngle;
 	double dx, dy;
 	private boolean visible;
 
@@ -16,7 +18,7 @@ public class SimpleBullet implements Bullet {
 		x = 0;
 		y = 0;
 		radius = 5;
-		speed = 2;
+		bulletAngle = 0;
 		dx = 0;
 		dy = 0;
 		visible = false;
@@ -27,10 +29,12 @@ public class SimpleBullet implements Bullet {
 	public void render(Graphics2D g) {
 		// TODO Auto-generated method stub
 		if (visible) {
-			g.setColor(Color.red);
-			g.fillOval(x, y, radius, radius);
-		}
 
+			// Draw bullet
+			g.setColor(Color.YELLOW);
+			g.fillOval(x, y, radius, radius);
+
+		}
 	}
 
 	@Override
@@ -43,6 +47,14 @@ public class SimpleBullet implements Bullet {
 		if (x >= Panel.WIDTH || x <= 0 || y >= Panel.HEIGHT || y <= 0)
 			visible = false;
 
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
 	}
 
 	@Override
@@ -73,16 +85,21 @@ public class SimpleBullet implements Bullet {
 		return visible;
 	}
 
-	@Override
-	public void setDx(double cos) {
+	public void setDx(double newDx) {
 		// TODO Auto-generated method stub
-		dx = cos;
+		dx = newDx;
 	}
 
 	@Override
-	public void setDy(double sin) {
+	public void setDy(double newDy) {
 		// TODO Auto-generated method stub
-		dy = sin;
+		dy = newDy;
+	}
+
+	@Override
+	public void setBulletAngle(double angle) {
+		// TODO Auto-generated method stub
+		bulletAngle = angle;
 	}
 
 }
