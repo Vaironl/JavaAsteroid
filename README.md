@@ -4,12 +4,16 @@ Asteroids game in Java. I am challenging myself by only using the Java libraries
 
 -----
 ##Things that need to be fixed##
+
 •Asteroid & Player Collision
 
 -------
 ####Here are somethings that I want to add###
 
 •Parallax scrolling background
+
 •Asteroids split on bullet hit
+
 •Animated Sprites
+
 •Sound Effects
