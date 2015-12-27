@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import Display.LoadImage;
 import Display.Panel;
 
 public class Player {
@@ -18,12 +19,11 @@ public class Player {
 	private int x, y;
 	private BufferedImage shipImg;
 	private int cannonX, cannonY;
-	private double angle;
 	private final int speed = 2, width, height;
-	// Ship Dimensions Width: 62, Height :113. Note the ship is being rotated!!!
+	private int score = 0;
 
 	// Move flags
-	private boolean up, down;
+	private boolean left, right;
 
 	// Fire short burst of 10 bullets?
 	private SimpleBullet[] bullets;
@@ -31,43 +31,27 @@ public class Player {
 	public Player() {
 		// TODO Auto-generated constructor stub
 
-		shipImg = null;
+		shipImg = LoadImage
+				.loadImage(
+						"E:\\Program Files\\Computer Science\\Asteroid\\Asteroid\\src\\ship.png",
+						"Ship Image");
 
-		try {
-			shipImg = ImageIO
-					.read(new File(
-							"E:\\Program Files\\Computer Science\\Asteroid\\Asteroid\\src\\ship.png"));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			System.out.println("There was an error opening the ship image...");
-			e.printStackTrace();
-			System.exit(0);
-		}
-
-		width = 31;
-		height = 57;
+		// width = 31;
+		// height = 57;
+		width = shipImg.getWidth() / 2;
+		height = shipImg.getHeight() / 2;
 
 		x = width - 15;
-		y = Panel.HEIGHT / 2;
+		y = Panel.HEIGHT - height;
 
-		angle = Math.toRadians(90);
-
-		up = false;
-		down = false;
+		left = false;
+		right = false;
 
 		bullets = new SimpleBullet[10];
 
 		// Initialize bullets
 		initBullets();
 
-	}
-
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
 	}
 
 	private void initBullets() {
@@ -87,28 +71,17 @@ public class Player {
 
 	public void draw(Graphics2D g) {
 
-		// Note: Probably using transform incorrectly, read docs carefully!!!!!
-		AffineTransform transform = g.getTransform();
-
 		cannonX = x + width / 2;
-		cannonY = y + 4;
-
-		// Rotate the ship around the center
-		g.rotate(angle, x + (width / 2), y + (height / 2));
+		cannonY = y;
 
 		// Draw Ship
 		g.drawImage(shipImg, x, y, width, height, null);
 
-		// Draw bounds of the ship
-		g.setColor(Color.red);
-		g.drawRect(getX(), getY(), getWidth(), getHeight());
-
-		g.setTransform(transform);
-
 		// Draw the bullets
 		renderBullets(g);
-
+		// Show bullet count on the screen
 		bulletCount(g);
+		scoreCount(g);
 
 	}
 
@@ -128,6 +101,15 @@ public class Player {
 
 	}
 
+	private void scoreCount(Graphics2D g2d) {
+
+		g2d.setColor(Color.white);
+
+		String bulletCountString = "Score: " + score;
+
+		g2d.drawString(bulletCountString, Panel.WIDTH - 200, 40);
+	}
+
 	private int availableBullets() {
 		// Total available bullets
 		int total = 0;
@@ -144,24 +126,24 @@ public class Player {
 	}
 
 	public void update() {
-
 		move();
 		updateBullets();
-
 	}
 
+	/**
+	 * Controls player movement
+	 */
 	private void move() {
-		if (y <= 0) {
-			y = 1;
-		} else if (y >= Panel.HEIGHT - height) {
-			y = Panel.HEIGHT - height - 1;
+		if (x <= 0) {
+			x = 1;
+		} else if (x >= Panel.WIDTH - this.width) {
+			x = Panel.WIDTH - this.width - 1;
 		} else {
-			if (up) {
-				y -= speed;
+			if (left) {
+				x -= speed;
 			}
-			if (down) {
-				y += speed;
-
+			if (right) {
+				x += speed;
 			}
 		}
 	}
@@ -173,17 +155,23 @@ public class Player {
 			// If this bullet is available use it and fire it
 			if (!bullets[index].getVisibility()) {
 
-				bullets[index].setX(cannonX + 30);
-				bullets[index].setY(cannonY + 22);
-				bullets[index].setDx(1);
-				bullets[index].setDy(0);
-				bullets[index].setBulletAngle(angle);
+				bullets[index].setX(cannonX);
+				bullets[index].setY(cannonY);
+				bullets[index].setDx(0);
+				bullets[index].setDy(-1);
 				bullets[index].setVisibility(true);
 
+				// Allows only one bullet
 				return;
 			}
 
 		}
+
+	}
+
+	public void updateScore(int points) {
+
+		score += points;
 
 	}
 
@@ -193,15 +181,15 @@ public class Player {
 
 	}
 
-	public void moveUp(boolean move) {
+	public void moveLeft(boolean move) {
 		// TODO Auto-generated method stub
-		up = move;
+		left = move;
 
 	}
 
-	public void moveDown(boolean move) {
+	public void moveRight(boolean move) {
 		// TODO Auto-generated method stub
-		down = move;
+		right = move;
 
 	}
 
@@ -220,5 +208,17 @@ public class Player {
 	public int getHeight() {
 		// TODO Auto-generated method stub
 		return height;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public int getScore() {
+		return score;
 	}
 }

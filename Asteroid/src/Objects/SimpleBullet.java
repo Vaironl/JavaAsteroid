@@ -3,38 +3,53 @@ package Objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.util.Random;
 
+import Display.LoadImage;
 import Display.Panel;
 
 public class SimpleBullet implements Bullet {
 
 	private int x, y, radius;
-	private double bulletAngle;
 	double dx, dy;
 	private boolean visible;
+	private BufferedImage bulletImg;
+
+	private Random random;
 
 	public SimpleBullet() {
 
 		x = 0;
 		y = 0;
-		radius = 5;
-		bulletAngle = 0;
+		radius = 12;
+
+		bulletImg = LoadImage
+				.loadImage(
+						"E:\\Program Files\\Computer Science\\Asteroid\\Asteroid\\src\\bullet1.png",
+						"Bullet 1");
+
 		dx = 0;
 		dy = 0;
 		visible = false;
+		random = new Random();
 
 	}
 
 	@Override
 	public void render(Graphics2D g) {
 		// TODO Auto-generated method stub
+
 		if (visible) {
 
 			// Draw bullet
 			g.setColor(Color.YELLOW);
-			g.fillOval(x, y, radius, radius);
-
+			g.setColor(new Color(random.nextInt(255), random.nextInt(255),
+					random.nextInt(255)));
+			// g.fillOval(x, y, radius, radius);
+			g.drawImage(bulletImg, x, y, radius, radius, null);
 		}
+
 	}
 
 	@Override
@@ -61,14 +76,12 @@ public class SimpleBullet implements Bullet {
 	public void setX(int newX) {
 		// TODO Auto-generated method stub
 		x = newX;
-
 	}
 
 	@Override
 	public void setY(int newY) {
 		// TODO Auto-generated method stub
 		y = newY;
-
 	}
 
 	@Override
@@ -76,7 +89,6 @@ public class SimpleBullet implements Bullet {
 		// TODO Auto-generated method stub
 
 		visible = isVisible;
-
 	}
 
 	@Override
@@ -97,9 +109,9 @@ public class SimpleBullet implements Bullet {
 	}
 
 	@Override
-	public void setBulletAngle(double angle) {
+	public int getRadius() {
 		// TODO Auto-generated method stub
-		bulletAngle = angle;
+		return radius;
 	}
 
 }

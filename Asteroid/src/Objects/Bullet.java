@@ -11,6 +11,8 @@ public interface Bullet {
 	public int getX();
 
 	public int getY();
+	
+	public int getRadius();
 
 	public void render(Graphics2D g);
 
@@ -23,7 +25,7 @@ public interface Bullet {
 	public void setDx(double cos);
 
 	public void setDy(double sin);
+	
 
-	public void setBulletAngle(double angle);
 
 }

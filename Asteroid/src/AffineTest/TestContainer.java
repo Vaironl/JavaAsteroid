@@ -1,17 +1,16 @@
-package Display;
+package AffineTest;
 
 import javax.swing.JFrame;
-import AffineTest.TestPanel;
 
-public class Container extends JFrame {
+public class TestContainer extends JFrame {
 
-	public Container(String TITLE, int SCREEN_WIDTH, int SCREEN_HEIGHT) {
+	public TestContainer(String TITLE, int SCREEN_WIDTH, int SCREEN_HEIGHT) {
 
 		setTitle(TITLE);
 		// setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
 		// setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 		// Panel
-		Panel newPanel = new Panel();
+		TestPanel newPanel = new TestPanel();
 		add(newPanel);
 		pack();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

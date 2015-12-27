@@ -1,6 +1,5 @@
 package Objects;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -9,57 +8,33 @@ import java.util.Random;
 import Display.LoadImage;
 import Display.Panel;
 
-public class Asteroid {
+public class AsteroidBoss {
 
 	private int x, y;
 	private final int SPEED = 1;
-	private BufferedImage asteroidImg;
+	private BufferedImage bossImg;
 	private int width, height;
 	private Random random;
 	private int dx, dy;
 	private boolean visible;
-	private int choice = 0;
+	private int health = 2000;
 
-	public Asteroid() {
+	public AsteroidBoss() {
 		random = new Random();
 
-		asteroidImg = LoadImage
+		bossImg = LoadImage
 				.loadImage(
-						"E:\\Program Files\\Computer Science\\Asteroid\\Asteroid\\src\\asteroid1.png",
-						"Asteroid Image");
+						"E:\\Program Files\\Computer Science\\Asteroid\\Asteroid\\src\\asteroidBoss.png",
+						"Boss Image");
 
 		generateAsteroid();
 	}
 
 	private void generateAsteroid() {
 		visible = true;
-		choice = random.nextInt(4);
 
-		width = asteroidImg.getWidth();
-		height = asteroidImg.getHeight();
-
-		switch (choice) {
-
-		case 0:
-			width /= 1;
-			height /= 1;
-			break;
-		case 1:
-			width /= 2;
-			height /= 2;
-			break;
-		case 2:
-			width /= 3;
-			height /= 3;
-			break;
-		case 3:
-			width /= 4;
-			height /= 4;
-			break;
-		default:
-			width /= 6;
-			height /= 6;
-		}
+		width = bossImg.getWidth();
+		height = bossImg.getHeight();
 
 		y = 0;
 		x = random.nextInt(Panel.WIDTH + 1);
@@ -67,7 +42,7 @@ public class Asteroid {
 		dy = SPEED;
 
 		// Range of dx will be from -3 to 3
-		dx = random.nextInt(3) - 1;
+		dx = random.nextInt(5) - 2;
 
 	}
 
@@ -82,27 +57,30 @@ public class Asteroid {
 	public void render(Graphics2D g) {
 		if (visible) {
 			// Draw Ship
-			g.drawImage(asteroidImg, x, y, width, height, null);
+			g.drawImage(bossImg, x, y, width, height, null);
 		}
 	}
 
 	public void update() {
 
-		if (y > Panel.HEIGHT) {
-			generateAsteroid();
-		}
-		
-		if(x < 0)
-		{
-			x = Panel.WIDTH - width;
-		}
-		if(x > Panel.WIDTH - width)
-		{
-			x = 1;
-		}
+		System.out.println("Health: " + health);
 
-		x += dx;
-		y += dy;
+		if (visible) {
+
+			if (y > Panel.HEIGHT) {
+				y = 0;
+			}
+
+			if (x < 0) {
+				x = Panel.WIDTH - width;
+			}
+			if (x > Panel.WIDTH - width) {
+				x = 1;
+			}
+
+			x += dx;
+			y += dy;
+		}
 
 	}
 
@@ -110,7 +88,6 @@ public class Asteroid {
 		// TODO Auto-generated method stub
 
 		visible = visibility;
-		generateAsteroid();
 
 	}
 
@@ -124,10 +101,9 @@ public class Asteroid {
 
 		Rectangle asteroidRect, playerRect;
 
-		asteroidRect = new Rectangle(getX(), getY(), height, width);
+		asteroidRect = new Rectangle(getX(), getY(), width, height);
 		playerRect = new Rectangle(player.getX(), player.getY(),
 				player.getWidth(), player.getHeight());
-		
 
 		return asteroidRect.intersects(playerRect);
 
@@ -138,16 +114,22 @@ public class Asteroid {
 
 		Rectangle bulletRect, asteroidRect;
 
-		asteroidRect = new Rectangle(getX(), getY(), width, height);
+		asteroidRect = new Rectangle(getX(), getY(), height, width);
 
 		bulletRect = new Rectangle(bullet.getX(), bullet.getY(),
 				bullet.getRadius(), bullet.getRadius());
 
 		// Bullet hit the asteroid
 		if (bulletRect.intersects(asteroidRect)) {
+
+			health -= 5;
 			bullet.setVisibility(false);
-			this.setVisibility(false);
-			player.updateScore(5);
+
+			player.updateScore(40);
+			if (health <= 0) {
+				this.setVisibility(false);
+			}
+
 		}
 
 	}
